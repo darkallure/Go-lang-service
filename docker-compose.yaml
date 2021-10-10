@@ -1,0 +1,56 @@
+version: "3.7"
+services:
+  backend:
+    build: backend
+    container_name: rest-container
+    hostname: rest-hostname
+    secrets:
+      - db-password
+    depends_on:
+      - db
+    networks:
+      - mynet
+    ports:
+      - 80:8080
+    deploy:
+      restart_policy:
+        condition: on-failure
+  db:
+    image: postgres:latest
+    restart: always
+    container_name: db_container
+    hostname: db
+    networks:
+      - mynet
+    ports:
+      - 26257:26257
+      - 6543:5432
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=example
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+      - POSTGRES_USER = docker
+      - POSTGRES_DB = docker_database
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - db
+    ports:
+      - "5555:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+    restart: unless-stopped
+
+        
+volumes:
+  db-data:
+secrets:
+  db-password:
+    file: db/password.txt
+networks:
+  mynet:
+    driver: bridge

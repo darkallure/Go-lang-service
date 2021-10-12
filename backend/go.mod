@@ -1,4 +1,4 @@
-module github.com/olliefr/docker-gs-ping
+module github.com/darkallure/Go-lang-service
 
 go 1.17
 
